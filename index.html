@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Mentor Empresarial AI V4</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#0b1020;
+color:white;
+}
+
+header{
+background:#111827;
+padding:20px;
+text-align:center;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:#1f2937;
+padding:20px;
+border-radius:12px;
+margin-top:15px;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin-top:8px;
+border:none;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#38bdf8;
+font-weight:bold;
+cursor:pointer;
+}
+
+.result{
+background:#0ea5e9;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+display:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>Mentor Empresarial AI V4</h1>
+<p>Plataforma SaaS de empreendedorismo</p>
+</header>
+
+<div class="container">
+
+<!-- LOGIN SIMULADO -->
+<div class="card">
+<h2>🔐 Login</h2>
+
+<input id="email" placeholder="Email">
+<input id="senha" placeholder="Senha">
+
+<button onclick="login()">Entrar</button>
+
+<p id="msg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card">
+<h2>📊 Dashboard</h2>
+<div id="dash"></div>
+</div>
+
+<!-- TESTE -->
+<div class="card">
+<h2>🧠 Teste Empreendedor</h2>
+
+<div id="quiz"></div>
+
+<button onclick="resultadoTeste()">Finalizar Teste</button>
+
+<div id="resTeste" class="result"></div>
+</div>
+
+<!-- EMPRESA -->
+<div class="card">
+<h2>🏢 Criar Empresa</h2>
+
+<input id="empresa" placeholder="Nome da empresa">
+<input id="nicho" placeholder="Nicho">
+<textarea id="problema" placeholder="Problema que resolve"></textarea>
+
+<button onclick="salvarEmpresa()">Gerar Estratégia</button>
+
+<div id="resEmpresa" class="result"></div>
+</div>
+
+<!-- IA -->
+<div class="card">
+<h2>🤖 IA Empresarial</h2>
+
+<textarea id="pergunta"></textarea>
+
+<button onclick="ia()">Perguntar</button>
+
+<div id="iaRes" class="result"></div>
+</div>
+
+</div>
+
+<script>
+
+// LOGIN SIMULADO
+function login(){
+let e = document.getElementById("email").value;
+let s = document.getElementById("senha").value;
+
+if(e && s){
+localStorage.setItem("logado", "sim");
+document.getElementById("msg").innerText = "Login realizado!";
+renderDash();
+}
+}
+
+// TESTE
+let perguntas = [
+"Lidero bem pessoas",
+"Tomo decisões rápidas",
+"Assumo riscos",
+"Tenho disciplina",
+"Sei vender ideias",
+"Sou criativo",
+"Tenho foco",
+"Resolvo problemas",
+"Vejo oportunidades",
+"Sou persistente"
+];
+
+function montarQuiz(){
+let html = "";
+for(let i=0;i<perguntas.length;i++){
+html += `<p>${perguntas[i]}</p>
+<input type="number" min="1" max="5" id="p${i}">`;
+}
+document.getElementById("quiz").innerHTML = html;
+}
+montarQuiz();
+
+let perfil = {};
+
+function resultadoTeste(){
+
+let total = 0;
+
+for(let i=0;i<perguntas.length;i++){
+total += Number(document.getElementById("p"+i).value || 0);
+}
+
+let nivel = "";
+
+if(total < 30) nivel = "Iniciante";
+else if(total < 40) nivel = "Intermediário";
+else nivel = "Avançado";
+
+perfil = {nivel, total};
+
+localStorage.setItem("perfil", JSON.stringify(perfil));
+
+document.getElementById("resTeste").style.display="block";
+document.getElementById("resTeste").innerHTML =
+"Nível: "+nivel+" | Score: "+total;
+
+renderDash();
+}
+
+// EMPRESA
+function salvarEmpresa(){
+
+let empresa = document.getElementById("empresa").value;
+let nicho = document.getElementById("nicho").value;
+let problema = document.getElementById("problema").value;
+
+let p = JSON.parse(localStorage.getItem("perfil")) || {nivel:"Iniciante"};
+
+let estrategia = "";
+
+if(p.nivel=="Iniciante") estrategia="Validar ideia com clientes reais";
+if(p.nivel=="Intermediário") estrategia="Focar em marketing digital";
+if(p.nivel=="Avançado") estrategia="Escalar e automatizar";
+
+let data = {empresa,nicho,problema,estrategia};
+
+localStorage.setItem("empresa", JSON.stringify(data));
+
+document.getElementById("resEmpresa").style.display="block";
+document.getElementById("resEmpresa").innerHTML =
+"<b>"+empresa+"</b><br>"+estrategia;
+
+renderDash();
+}
+
+// IA
+function ia(){
+
+let q = document.getElementById("pergunta").value.toLowerCase();
+
+let r = "";
+
+if(q.includes("vender")) r="Venda = oferta + confiança + tráfego";
+else if(q.includes("empresa")) r="Empresa nasce de problema real";
+else if(q.includes("dinheiro")) r="Dinheiro vem de escala";
+else if(q.includes("marketing")) r="Marketing = atenção + valor";
+else r="Foque em validar sua ideia primeiro";
+
+document.getElementById("iaRes").style.display="block";
+document.getElementById("iaRes").innerHTML = r;
+}
+
+// DASHBOARD
+function renderDash(){
+
+let p = JSON.parse(localStorage.getItem("perfil"));
+let e = JSON.parse(localStorage.getItem("empresa"));
+
+let html = "";
+
+if(p){
+html += "<p><b>Perfil:</b> "+p.nivel+"</p>";
+}
+
+if(e){
+html += "<p><b>Empresa:</b> "+e.empresa+"</p>";
+html += "<p><b>Estratégia:</b> "+e.estrategia+"</p>";
+}
+
+document.getElementById("dash").innerHTML =
+html || "Nenhum dado ainda.";
+}
+
+renderDash();
+
+</script>
+
+</body>
+  </html>
